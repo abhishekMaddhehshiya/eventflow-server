@@ -1,7 +1,7 @@
 import { Router } from 'express'
-import { authMiddleware, isOrganizer } from '../middleware/authmiddleware.ts';
-import { createEvent, deleteEvent, organizerAllEvents, updateEvent, getDashboardStats } from '../controller/organizers.ts';
-import { uploadMiddleware } from '../middleware/uploadMiddleware.ts';
+import { authMiddleware, isOrganizer } from '../middleware/authmiddleware';
+import { createEvent, deleteEvent, organizerAllEvents, updateEvent, getDashboardStats } from '../controller/organizers';
+import { uploadMiddleware } from '../middleware/uploadMiddleware';
 
 
 const organizerRoutes = Router();

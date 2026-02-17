@@ -1,0 +1,14 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const authmiddleware_1 = require("../middleware/authmiddleware");
+const organizers_1 = require("../controller/organizers");
+const uploadMiddleware_1 = require("../middleware/uploadMiddleware");
+const organizerRoutes = (0, express_1.Router)();
+organizerRoutes.use(authmiddleware_1.authMiddleware, authmiddleware_1.isOrganizer);
+organizerRoutes.post("/create-event", uploadMiddleware_1.uploadMiddleware, organizers_1.createEvent);
+organizerRoutes.put("/update-event", uploadMiddleware_1.uploadMiddleware, organizers_1.updateEvent);
+organizerRoutes.delete("/delete-event/:id", organizers_1.deleteEvent);
+organizerRoutes.get("/organizer-all-events", organizers_1.organizerAllEvents);
+organizerRoutes.get("/dashboard", organizers_1.getDashboardStats);
+exports.default = organizerRoutes;

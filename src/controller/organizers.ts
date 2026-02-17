@@ -1,7 +1,7 @@
 import { type Request, type Response } from "express";
-import Event from "../model/events.ts";
-import { AuthRequest } from "../middleware/authmiddleware.ts";
-import cloudinary from "../lib/cloudinary.ts";
+import Event from "../model/events";
+import { AuthRequest } from "../middleware/authmiddleware";
+import cloudinary from "../lib/cloudinary";
 import fs from "fs";
 
 export const createEvent = async (req: AuthRequest, res: Response) => {

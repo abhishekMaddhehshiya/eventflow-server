@@ -1,7 +1,7 @@
 import { type Request, type Response } from "express";
-import User from "../model/user.ts";
-import Event from "../model/events.ts";
-import { AuthRequest } from "../middleware/authmiddleware.ts";
+import User from "../model/user";
+import Event from "../model/events";
+import { AuthRequest } from "../middleware/authmiddleware";
 
 export const registerEvents = async (req: AuthRequest, res: Response) => {
     try {
