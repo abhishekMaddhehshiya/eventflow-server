@@ -8,12 +8,12 @@ const JWT_SECRET = process.env.JWT_SECRET || "secret";
 
 
 
-interface CustomJwtPayload extends JwtPayload {
+export interface CustomJwtPayload extends JwtPayload {
   id: string;
   email: string;
   role: "user" | "organizer";
 }
-interface AuthRequest extends Request {
+export interface AuthRequest extends Request {
   user?: CustomJwtPayload;
 }
 
@@ -21,16 +21,16 @@ export const authMiddleware = (
   req: AuthRequest,
   res: Response,
   next: NextFunction
-) =>{
-    const authHeader = req.headers.authorization;
+) => {
+  const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
   const token = authHeader.split(" ")[1];
-  if(!token){
-    return res.status(401).json({message: "Unauthorized"});
+  if (!token) {
+    return res.status(401).json({ message: "Unauthorized" });
   }
 
   try {
@@ -49,55 +49,55 @@ export const authMiddleware = (
 
 
 export const isOrganizer = (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
 
-)=>{
-     try {
-        
-        if(req.user?.role !== "organizer"){
-            return res.status(403).json({
-                success:false,
-                message: "this route is protected for organizers only",
-            })
-        }
+) => {
+  try {
 
-        next();
-
+    if (req.user?.role !== "organizer") {
+      return res.status(403).json({
+        success: false,
+        message: "this route is protected for organizers only",
+      })
     }
-    catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: "Organizer role can not be verified",
-        })
 
-    }
+    next();
+
+  }
+  catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Organizer role can not be verified",
+    })
+
+  }
 }
 
 export const isUser = (
-    req: AuthRequest,
-    res: Response,
-    next: NextFunction
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
 
-)=>{
-     try {
+) => {
+  try {
 
-        if(req.user?.role !== "user"){
-            return res.status(403).json({
-                success:false,
-                message: "this route is protected for users only",
-            })
-        }
-
-        next();
-
+    if (req.user?.role !== "user") {
+      return res.status(403).json({
+        success: false,
+        message: "this route is protected for users only",
+      })
     }
-    catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: "User role can not be verified",
-        })
 
-    }
+    next();
+
+  }
+  catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "User role can not be verified",
+    })
+
+  }
 }
