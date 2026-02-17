@@ -7,10 +7,12 @@ const port = 3000;
 
 const app = express();
 app.use(express.json());
-app.use(cors({
-  origin: "*",
-  credentials: true,
-}))
+app.use(
+  cors({
+    origin: "https://event-management-theta-self.vercel.app",
+    credentials: true,
+  })
+);
 
 connectDB();
 
