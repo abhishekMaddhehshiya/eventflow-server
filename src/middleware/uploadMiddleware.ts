@@ -1,21 +1,15 @@
 import multer from 'multer';
 import { type Request, type Response, type NextFunction } from 'express';
 
-// Use disk storage to temporarily save the file before uploading to Cloudinary
-// Alternatively, we could use memory storage, but disk is safer for larger files
-// For a serverless environment (like Vercel), memory storage is better.
-// Assuming a standard Node environment here.
+// Use memory storage for serverless environments like Vercel
+// Files are stored in memory as Buffer objects, which works better in serverless
+const storage = multer.memoryStorage();
 
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, '/tmp'); // Save to /tmp for serverless environments
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        cb(null, file.fieldname + '-' + uniqueSuffix + '-' + file.originalname);
+const upload = multer({
+    storage: storage,
+    limits: {
+        fileSize: 5 * 1024 * 1024 // 5MB limit
     }
 });
-
-const upload = multer({ storage: storage });
 
 export const uploadMiddleware = upload.single('image');

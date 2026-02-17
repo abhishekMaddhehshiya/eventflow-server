@@ -2,7 +2,6 @@ import { type Request, type Response } from "express";
 import Event from "../model/events";
 import { AuthRequest } from "../middleware/authmiddleware";
 import cloudinary from "../lib/cloudinary";
-import fs from "fs";
 
 export const createEvent = async (req: AuthRequest, res: Response) => {
     try {
@@ -11,12 +10,13 @@ export const createEvent = async (req: AuthRequest, res: Response) => {
         // Check if file is uploaded
         let imageUrl = "";
         if (req.file) {
-            const result = await cloudinary.uploader.upload(req.file.path, {
+            // Upload from buffer (memory storage) for serverless environments
+            const b64 = Buffer.from(req.file.buffer).toString('base64');
+            const dataURI = `data:${req.file.mimetype};base64,${b64}`;
+            const result = await cloudinary.uploader.upload(dataURI, {
                 folder: "events"
             });
             imageUrl = result.secure_url;
-            // Remove file from local storage
-            fs.unlinkSync(req.file.path);
         }
 
         if (!organizerId) {
@@ -40,10 +40,6 @@ export const createEvent = async (req: AuthRequest, res: Response) => {
         return res.status(201).json({ message: "Event created successfully", event: newEvent });
 
     } catch (error) {
-        // Cleanup file if error occurs and file exists
-        if (req.file && fs.existsSync(req.file.path)) {
-            fs.unlinkSync(req.file.path);
-        }
         return res.status(500).json({ message: "Internal server error" });
     }
 }
@@ -54,11 +50,13 @@ export const updateEvent = async (req: AuthRequest, res: Response) => {
 
         let imageUrl = "";
         if (req.file) {
-            const result = await cloudinary.uploader.upload(req.file.path, {
+            // Upload from buffer (memory storage) for serverless environments
+            const b64 = Buffer.from(req.file.buffer).toString('base64');
+            const dataURI = `data:${req.file.mimetype};base64,${b64}`;
+            const result = await cloudinary.uploader.upload(dataURI, {
                 folder: "events"
             });
             imageUrl = result.secure_url;
-            fs.unlinkSync(req.file.path);
             // Add image URL to updates
             (updates as any).image = imageUrl;
         }
@@ -70,9 +68,6 @@ export const updateEvent = async (req: AuthRequest, res: Response) => {
         return res.status(200).json({ message: "Event updated successfully", event });
 
     } catch (error) {
-        if (req.file && fs.existsSync(req.file.path)) {
-            fs.unlinkSync(req.file.path);
-        }
         return res.status(500).json({ message: "Internal server error" });
     }
 }

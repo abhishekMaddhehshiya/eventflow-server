@@ -26,7 +26,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getDashboardStats = exports.deleteEvent = exports.organizerAllEvents = exports.updateEvent = exports.createEvent = void 0;
 const events_1 = __importDefault(require("../model/events"));
 const cloudinary_1 = __importDefault(require("../lib/cloudinary"));
-const fs_1 = __importDefault(require("fs"));
 const createEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
@@ -35,12 +34,13 @@ const createEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         // Check if file is uploaded
         let imageUrl = "";
         if (req.file) {
-            const result = yield cloudinary_1.default.uploader.upload(req.file.path, {
+            // Upload from buffer (memory storage) for serverless environments
+            const b64 = Buffer.from(req.file.buffer).toString('base64');
+            const dataURI = `data:${req.file.mimetype};base64,${b64}`;
+            const result = yield cloudinary_1.default.uploader.upload(dataURI, {
                 folder: "events"
             });
             imageUrl = result.secure_url;
-            // Remove file from local storage
-            fs_1.default.unlinkSync(req.file.path);
         }
         if (!organizerId) {
             return res.status(401).json({ message: "Unauthorized" });
@@ -61,10 +61,6 @@ const createEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         return res.status(201).json({ message: "Event created successfully", event: newEvent });
     }
     catch (error) {
-        // Cleanup file if error occurs and file exists
-        if (req.file && fs_1.default.existsSync(req.file.path)) {
-            fs_1.default.unlinkSync(req.file.path);
-        }
         return res.status(500).json({ message: "Internal server error" });
     }
 });
@@ -74,11 +70,13 @@ const updateEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         const _a = req.body, { eventId } = _a, updates = __rest(_a, ["eventId"]);
         let imageUrl = "";
         if (req.file) {
-            const result = yield cloudinary_1.default.uploader.upload(req.file.path, {
+            // Upload from buffer (memory storage) for serverless environments
+            const b64 = Buffer.from(req.file.buffer).toString('base64');
+            const dataURI = `data:${req.file.mimetype};base64,${b64}`;
+            const result = yield cloudinary_1.default.uploader.upload(dataURI, {
                 folder: "events"
             });
             imageUrl = result.secure_url;
-            fs_1.default.unlinkSync(req.file.path);
             // Add image URL to updates
             updates.image = imageUrl;
         }
@@ -89,9 +87,6 @@ const updateEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         return res.status(200).json({ message: "Event updated successfully", event });
     }
     catch (error) {
-        if (req.file && fs_1.default.existsSync(req.file.path)) {
-            fs_1.default.unlinkSync(req.file.path);
-        }
         return res.status(500).json({ message: "Internal server error" });
     }
 });
