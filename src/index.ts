@@ -11,7 +11,10 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: "https://event-management-theta-self.vercel.app",
+    origin: [
+      "https://event-management-theta-self.vercel.app",
+      "http://localhost:3000"
+    ],
     credentials: true,
   })
 );
